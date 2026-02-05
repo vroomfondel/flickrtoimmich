@@ -1,0 +1,60 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build]
+packages = ["flickrtoimmich"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[project]
+name = "flickrtoimmich"
+dynamic = ["version"]
+authors = [
+  { name="Henning Thieß", email="ht@xomox.cc" },
+]
+description = "Docker/Podman wrapper for backing up Flickr photo libraries and uploading to Immich"
+readme = "README.md"
+requires-python = ">=3.14"
+license-files = ["LICENSE.md"]
+
+keywords = ["flickr", "immich", "backup", "photos", "docker", "podman", "oauth"]
+
+# https://pypi.org/classifiers/
+classifiers = [
+    "Development Status :: 4 - Beta",
+
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.14",
+
+    "Topic :: Multimedia :: Graphics",
+    "Topic :: System :: Archiving :: Backup",
+
+    "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
+    "Operating System :: OS Independent",
+]
+
+dependencies = [
+    'PyYAML>=6.0',
+    'loguru>=0.7.0',
+    'flickr_download @ git+https://github.com/beaufour/flickr-download.git',
+    'flickr_api',
+]
+
+[project.scripts]
+flickr-list-albums = "flickrtoimmich.list_albums:main"
+flickr-download-wrapper = "flickrtoimmich.download_wrapper:main"
+immich-uploader = "flickrtoimmich.immich_uploader:cli"
+
+[project.urls]
+Homepage = "https://github.com/vroomfondel/flickrtoimmich"
+Repository = "https://github.com/vroomfondel/flickrtoimmich"
+Issues = "https://github.com/vroomfondel/flickrtoimmich/issues"
+
+[tool.hatch.version]
+path = "flickrtoimmich/__init__.py"
+
+[tool.isort]
+profile = "black"
+line_length = 120
