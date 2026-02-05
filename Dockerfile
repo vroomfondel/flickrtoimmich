@@ -72,8 +72,8 @@ ENV HOME=/root
 #RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
 #RUN . "/root/.nvm/nvm.sh" &&  nvm install 24
 
-ADD "https://www.random.org/cgi-bin/randbyte?nbytes=10&format=h" skipcache
-RUN rm -v skipcache
+#ADD "https://www.random.org/cgi-bin/randbyte?nbytes=10&format=h" skipcache
+#RUN rm -v skipcache
 
 ARG TARGETARCH
 ARG TARGETPLATFORM
