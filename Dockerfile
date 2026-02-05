@@ -114,14 +114,14 @@ ENV PYTHONUNBUFFERED=1
 
 # url-opener: forwards browser-open requests to the host via a Unix socket.
 # Used by USE_DSOCKET mode; installed unconditionally (mode is selected at runtime).
-COPY --chmod=755 url-opener /usr/local/bin/url-opener
+COPY --chmod=755 dist_scripts/url-opener /usr/local/bin/url-opener
 
 # url-dbus-opener: opens a URL on the host via the XDG Desktop Portal over D-Bus.
 # Used by USE_DBUS mode; installed unconditionally (mode is selected at runtime).
-COPY --chmod=755 url-dbus-opener /usr/local/bin/url-dbus-opener
+COPY --chmod=755 dist_scripts/url-dbus-opener /usr/local/bin/url-dbus-opener
 
-COPY --chmod=755 flickr-docker.sh /usr/local/bin/flickr-docker.sh
-COPY --chmod=755 upload-to-immich.sh /usr/local/bin/upload-to-immich.sh
+COPY --chmod=755 dist_scripts/flickr-docker.sh /usr/local/bin/flickr-docker.sh
+COPY --chmod=755 dist_scripts/upload-to-immich.sh /usr/local/bin/upload-to-immich.sh
 
 # Install flickrtoimmich package (provides flickr-list-albums, flickr-download-wrapper, immich-uploader commands)
 COPY pyproject.toml README.md /build/
@@ -129,7 +129,7 @@ COPY flickrtoimmich/ /build/flickrtoimmich/
 RUN pip install --no-cache-dir /build && rm -rf /build
 
 # Entrypoint script with improved shell support
-COPY --chmod=755 entrypoint.sh /entrypoint.sh
+COPY --chmod=755 dist_scripts/entrypoint.sh /entrypoint.sh
 
 ARG buildtime
 ENV BUILDTIME=${buildtime}

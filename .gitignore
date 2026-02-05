@@ -6,7 +6,7 @@
 
 # Local config files
 *.local.*
-/scripts/logdir/
+/repo_scripts/logdir/
 
 # Flickr data directories (created at runtime)
 /flickr-backup/

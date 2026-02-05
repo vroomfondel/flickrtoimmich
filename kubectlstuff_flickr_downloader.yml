@@ -218,7 +218,7 @@
 #                command:
 #                  - bash
 #                  - -c
-#                  - "echo flickr-operator init started && pip install --no-cache-dir kubernetes && exec python /scripts/flickr_operator.py"
+#                  - "echo flickr-operator init started && pip install --no-cache-dir kubernetes && exec python /repo_scripts/flickr_operator.py"
                 env:
                   - name: NAMESPACE
                     value: "flickr-downloader"
@@ -239,7 +239,7 @@
                     memory: 128Mi
 #                volumeMounts:
 #                  - name: operator-script
-#                    mountPath: /scripts
+#                    mountPath: /repo_scripts
 #                    readOnly: true
 #            volumes:
 #              - name: operator-script
