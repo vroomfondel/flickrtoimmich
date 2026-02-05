@@ -2,7 +2,7 @@ DOCKER_USERNAME="arley@somewhere.com"
 DOCKER_PASSWORD="someweirdpassword"
 
 DOCKER_TOKENUSER="dockerhubtokenuser"
-DOCKER_TOKEN="dockerhubtokenforthatuser"
+DOCKER_TOKEN=""
 
 KUBECTL_CONTEXT="arley@local"
 
