@@ -1,4 +1,4 @@
-.PHONY: tests help install venv lint isort tcheck build commit-checks prepare gitleaks dstart update-all-dockerhub-readmes
+.PHONY: tests help install venv lint isort tcheck build commit-checks prepare gitleaks dstart update-all-dockerhub-readmes check-dockerhub-token
 SHELL := /usr/bin/bash
 .ONESHELL:
 
@@ -14,6 +14,7 @@ help:
 	@printf "\nbuild\n\tbuild docker image\n"
 	@printf "\ndstart\n\tstart interactive container with volumes\n"
 	@printf "\nupdate-all-dockerhub-readmes \n\tupdate Docker Hub repo description from DOCKERHUB_OVERVIEW.md\n"
+	@printf "\ncheck-dockerhub-token\n\tcheck Docker Hub token permissions (credentials from include.sh)\n"
 
 
 # check for "CI" not in os.environ || "GITHUB_RUN_ID" not in os.environ
@@ -77,6 +78,9 @@ dstart: build
 		-v "$$(pwd)/flickr-backup:/root/flickr-backup" \
 		-v "$$(pwd)/flickr-cache:/root/flickr-cache" \
 		$(DOCKER_IMAGE):latest shell
+
+check-dockerhub-token:
+	source repo_scripts/include.sh && python3 repo_scripts/check_dockerhub_token.py "$${DOCKER_TOKENUSER}" "$${DOCKER_TOKEN}"
 
 update-all-dockerhub-readmes:
 	@AUTH=$$(jq -r '.auths["https://index.docker.io/v1/"].auth' ~/.docker/config.json | base64 -d) && \

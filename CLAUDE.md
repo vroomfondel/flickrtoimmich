@@ -119,4 +119,4 @@ Build auto-detects Docker vs Podman:
 - Docker: Uses buildx with binfmt for cross-compilation
 - Podman: Creates manifest with per-platform builds using VM emulation
 
-Credentials sourced from `scripts/include.sh` (not committed).
+Credentials sourced from `repo_scripts/include.sh` (not committed).

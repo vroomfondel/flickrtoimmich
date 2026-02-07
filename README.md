@@ -249,4 +249,18 @@ Multi-arch build and push to Docker Hub (amd64 + arm64):
 ./build_multiarch.sh onlylocal    # local build only (no push)
 ```
 
-Docker Hub credentials are read from `scripts/include.local.sh` (via `scripts/include.sh`). The primary tag is `xomoxcc/flickr-download:python-3.14-slim` and an additional `:latest` tag is automatically added.
+Docker Hub credentials are read from `repo_scripts/include.local.sh` (via `repo_scripts/include.sh`). The primary tag is `xomoxcc/flickr-download:python-3.14-slim` and an additional `:latest` tag is automatically added.
+
+### Checking Docker Hub token permissions
+
+`repo_scripts/check_dockerhub_token.py` checks which permissions (pull, push, delete) a Docker Hub access token has on all repositories in a namespace:
+
+```bash
+make check-dockerhub-token
+
+# or directly:
+python3 repo_scripts/check_dockerhub_token.py <username> <token>
+
+# JSON output:
+python3 repo_scripts/check_dockerhub_token.py <username> <token> --json
+```
