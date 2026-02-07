@@ -253,14 +253,19 @@ Docker Hub credentials are read from `repo_scripts/include.local.sh` (via `repo_
 
 ### Checking Docker Hub token permissions
 
-`repo_scripts/check_dockerhub_token.py` checks which permissions (pull, push, delete) a Docker Hub access token has on all repositories in a namespace:
+`repo_scripts/check_dockerhub_token.py` checks which permissions (pull, push, delete) a Docker Hub access token has on all repositories in one or more namespaces:
 
 ```bash
 make check-dockerhub-token
 
-# or directly:
+# or directly (username namespace is always checked):
 python3 repo_scripts/check_dockerhub_token.py <username> <token>
+
+# check additional namespaces:
+python3 repo_scripts/check_dockerhub_token.py <username> <token> -n <other-namespace>
 
 # JSON output:
 python3 repo_scripts/check_dockerhub_token.py <username> <token> --json
 ```
+
+The `make` target sources `repo_scripts/include.sh` for credentials (`DOCKER_TOKENUSER`, `DOCKER_TOKEN`) and passes any `DOCKERHUB_NAMESPACES` entries as extra `-n` flags.
