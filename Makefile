@@ -80,7 +80,10 @@ dstart: build
 		$(DOCKER_IMAGE):latest shell
 
 check-dockerhub-token:
-	source repo_scripts/include.sh && python3 repo_scripts/check_dockerhub_token.py "$${DOCKER_TOKENUSER}" "$${DOCKER_TOKEN}"
+	source repo_scripts/include.sh
+	NS_ARGS=""
+	for ns in "$${DOCKERHUB_NAMESPACES[@]}"; do NS_ARGS+=" -n $$ns"; done
+	python3 repo_scripts/check_dockerhub_token.py "$${DOCKER_TOKENUSER}" "$${DOCKER_TOKEN}" $$NS_ARGS
 
 update-all-dockerhub-readmes:
 	@AUTH=$$(jq -r '.auths["https://index.docker.io/v1/"].auth' ~/.docker/config.json | base64 -d) && \

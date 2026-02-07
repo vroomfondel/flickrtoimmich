@@ -83,20 +83,34 @@ def main() -> None:
     )
     parser.add_argument("username", help="Docker Hub username or organization name")
     parser.add_argument("token", help="Docker Hub access token (PAT or OAT)")
+    parser.add_argument(
+        "-n",
+        "--namespace",
+        action="append",
+        default=[],
+        dest="extra_namespaces",
+        help="Additional namespace(s) to check (can be specified multiple times)",
+    )
     parser.add_argument("--json", dest="json_output", action="store_true", help="Output as JSON instead of ASCII table")
     args = parser.parse_args()
 
-    repos = list_repositories(args.username)
-    if not repos:
-        print(f"No repositories found for namespace '{args.username}'", file=sys.stderr)
-        sys.exit(1)
+    namespaces = [args.username] + args.extra_namespaces
 
     token_info = get_token_info(args.username, args.token)
 
     results = []
-    for repo in sorted(repos):
-        actions = check_permissions(args.username, repo, args.username, args.token)
-        results.append({"repository": f"{args.username}/{repo}", "permissions": actions})
+    for ns in namespaces:
+        repos = list_repositories(ns)
+        if not repos:
+            print(f"No repositories found for namespace '{ns}'", file=sys.stderr)
+            continue
+        for repo in sorted(repos):
+            actions = check_permissions(ns, repo, args.username, args.token)
+            results.append({"repository": f"{ns}/{repo}", "permissions": actions})
+
+    if not results:
+        print("No repositories found in any namespace.", file=sys.stderr)
+        sys.exit(1)
 
     if args.json_output:
         print(
