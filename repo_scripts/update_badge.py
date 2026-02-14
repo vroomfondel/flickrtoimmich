@@ -21,8 +21,8 @@ def install_and_import(packagename: str, pipname: str) -> None:
 
 install_and_import(packagename="github", pipname="pygithub")
 
-from github import Auth, Clones, Github, InputFileContent, RateLimitOverview
-from github.Rate import Rate
+from github import Auth, Clones, Github, InputFileContent, RateLimitOverview  # type: ignore[import-not-found]
+from github.Rate import Rate  # type: ignore[import-not-found]
 
 
 def _load_include_local() -> None:

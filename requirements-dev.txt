@@ -9,3 +9,5 @@ mypy==1.19.*
 types-PyYAML
 
 pytest==9.0.*
+
+pydantic
