@@ -12,7 +12,7 @@ readonly DEBIAN_VERSION=slim-trixie
 readonly DOCKER_IMAGE="docker.io/xomoxcc/flickr-download:python-${PYTHON_VERSION}-${DEBIAN_VERSION}"
 readonly DOCKER_IMAGE_LATEST="${DOCKER_IMAGE%:*}:latest"
 readonly PLATFORMS=("linux/amd64" "linux/arm64")
-readonly DOCKERFILE=Dockerfile
+readonly DOCKERFILE=../Dockerfile
 readonly BUILDER_NAME=mbuilder
 readonly ENABLE_PARALLEL_BUILDS=0
 readonly BUILDTIME="$(date +'%Y-%m-%d %H:%M:%S %Z')"
@@ -150,7 +150,7 @@ build_with_docker() {
     "${build_args[@]}" \
     --platform "${platforms_csv}" \
     --push \
-    .
+    ..
 }
 
 build_with_podman() {
@@ -189,18 +189,18 @@ build_with_podman() {
     log "Building for ${platform} -> ${platform_tag} (background)..."
     # shellcheck disable=SC2086
     if (( ${ENABLE_PARALLEL_BUILDS:-0} == 1 )) ; then
-      echo "(podman ${connect_arg} build \"${build_args[@]}\" --platform \"${platform}\" -t \"${platform_tag}\" .) &"
+      echo "(podman ${connect_arg} build \"${build_args[@]}\" --platform \"${platform}\" -t \"${platform_tag}\" ..) &"
       (
         podman ${connect_arg} build \
           "${build_args[@]}" \
           --platform "${platform}" \
           -t "${platform_tag}" \
-          . || exit 1
+          .. || exit 1
       ) &
       build_pids+=($!)
     else
-      echo podman ${connect_arg} build "${build_args[@]}" --platform "${platform}" -t "${platform_tag}" .
-      podman ${connect_arg} build "${build_args[@]}" --platform "${platform}" -t "${platform_tag}" . || exit 1
+      echo podman ${connect_arg} build "${build_args[@]}" --platform "${platform}" -t "${platform_tag}" ..
+      podman ${connect_arg} build "${build_args[@]}" --platform "${platform}" -t "${platform_tag}" .. || exit 1
     fi
   done
 
@@ -275,11 +275,11 @@ build_local_only() {
 
   echo docker build \
     "${build_args[@]}" \
-    .
+    ..
 
   docker build \
     "${build_args[@]}" \
-    .
+    ..
 }
 
 #=============================================================================
