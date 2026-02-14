@@ -6,10 +6,10 @@ import flickr_download.utils as _u
 _orig = _u.set_file_time
 
 
-def _safe(f: str, t: str) -> None:
-    if not t or t.startswith("0000"):
+def _safe(fname: str, taken_str: str) -> None:
+    if not taken_str or taken_str.startswith("0000"):
         return
-    _orig(f, t)
+    _orig(fname, taken_str)
 
 
 _u.set_file_time = _safe
