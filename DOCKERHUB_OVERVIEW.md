@@ -5,6 +5,12 @@
 A Docker image for backing up Flickr photo libraries using [`flickr_download`](https://github.com/beaufour/flickr-download) with browser-based OAuth authentication. Based on `python:3.14-slim`, available for **linux/amd64** and **linux/arm64**. [Source on GitHub](https://github.com/vroomfondel/flickrtoimmich).
 
 
+## Screenshots
+
+![Flickr download with startup banner and configuration](https://raw.githubusercontent.com/vroomfondel/flickrtoimmich/main/Bildschirmfoto_2026-02-16_19-50-26_blurred.png)
+
+![Immich upload with album creation and file transfer](https://raw.githubusercontent.com/vroomfondel/flickrtoimmich/main/Bildschirmfoto_2026-02-16_19-51-05_blurred.png)
+
 ## Why this is useful
 
 - **Browser-based OAuth in a container** — X11 forwarding, Unix domain socket, or D-Bus portal modes let the Flickr OAuth browser flow work from inside a container without manual token wrangling.

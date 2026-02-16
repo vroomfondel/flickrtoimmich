@@ -143,6 +143,23 @@ Die Ausgabe zeigt Album-ID, Titel, Foto- und Video-Anzahl pro Album.
 ./flickr-docker.sh album 72157622764287329
 ```
 
+#### Dry-Run: Vorschau ohne Download
+
+Mit `--dry-run` verbindet sich das Script mit der Flickr-API und listet auf, was heruntergeladen werden würde — ohne Dateien herunterzuladen oder Verzeichnisse zu erstellen.
+
+```bash
+# Alle Alben mit Foto/Video-Counts anzeigen
+./flickr-docker.sh download dein_flickr_username --dry-run
+
+# Zusätzlich einzelne Fotos pro Album auflisten
+./flickr-docker.sh download dein_flickr_username --dry-run --verbose
+
+# Einzelnes Album: Fotos auflisten
+./flickr-docker.sh album 72157622764287329 --dry-run
+```
+
+> **Hinweis:** Im `download --dry-run`-Modus werden standardmäßig nur Album-Counts angezeigt (wenige API-Aufrufe). Mit `--verbose` (oder `-v`) werden zusätzlich alle Fotos/Videos pro Album aufgelistet. Im `album --dry-run`-Modus werden einzelne Fotos immer aufgelistet.
+
 Die Fotos werden in `./flickr-backup/` gespeichert, zusammen mit JSON-Metadaten.
 
 > **Metadaten:** Die Flickr-Metadaten (Datum, Titel, Tags) werden beim Download **automatisch** in die Bilddateien eingebettet. Ein separates Metadaten-Script ist nicht mehr erforderlich.
@@ -188,19 +205,43 @@ docker run --rm \
   download_then_upload dein_flickr_username
 ```
 
+Der `download_then_upload` Entrypoint unterstützt ebenfalls `--dry-run` und `--verbose`:
+
+```bash
+docker run --rm \
+  -e DATA_DIR=/home/poduser/flickr-backup \
+  -e IMMICH_API_KEY=dein_api_key \
+  -e IMMICH_INSTANCE_URL=https://immich.example.com \
+  -v ./flickr-config:/root \
+  -v ./flickr-backup:/root/flickr-backup \
+  xomoxcc/flickr-download:latest \
+  --dry-run --verbose download_then_upload dein_flickr_username
+```
+
+Im Dry-Run-Modus werden sowohl der Download- als auch der Upload-Dry-Run ausgeführt (Alben/Fotos auflisten, Dateien ohne Upload listen).
+
 ### 9. Befehlsreferenz
 
 | Befehl | Beschreibung |
 |---|---|
 | `auth` | OAuth-Authentifizierung starten |
 | `download <user>` | Alle Alben eines Users herunterladen |
+| `download <user> --dry-run` | Alben und Foto/Video-Counts auflisten (ohne Download) |
 | `album <id>` | Einzelnes Album herunterladen |
+| `album <id> --dry-run` | Fotos in einem Album auflisten (ohne Download) |
 | `list <user>` | Alben eines Users auflisten |
 | `shell` | Interaktive Shell im Container |
 | `test-browser [url]` | X11/Browser-Verbindung testen |
 | `info` | System-Informationen anzeigen |
 | `clean` | Image und temp. Dateien löschen |
 | `help` | Hilfe anzeigen |
+
+**Optionen:**
+
+| Option | Beschreibung |
+|---|---|
+| `--dry-run` | Vorschau: Alben/Fotos via API auflisten, ohne herunterzuladen |
+| `--verbose`, `-v` | Im Dry-Run-Modus: einzelne Fotos pro Album auflisten |
 
 ### 10. Verzeichnisstruktur
 

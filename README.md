@@ -6,6 +6,12 @@
 
 Docker/Podman wrapper for backing up Flickr photo libraries using [`flickr_download`](https://github.com/beaufour/flickr-download) with browser-based OAuth authentication (X11, domain socket, or D-Bus).
 
+## Screenshots
+
+![Flickr download with startup banner and configuration](https://raw.githubusercontent.com/vroomfondel/flickrtoimmich/main/Bildschirmfoto_2026-02-16_19-50-26_blurred.png)
+
+![Immich upload with album creation and file transfer](https://raw.githubusercontent.com/vroomfondel/flickrtoimmich/main/Bildschirmfoto_2026-02-16_19-51-05_blurred.png)
+
 ## What it does
 
 `flickr-docker.sh` builds a container image with `flickr_download`, Chromium, Firefox ESR, and ExifTool, then runs it with X11 forwarding so the OAuth browser login works on the host display. Downloads are saved with JSON metadata and EXIF data intact.

@@ -143,6 +143,23 @@ The output shows album ID, title, photo count and video count per album.
 ./flickr-docker.sh album 72157622764287329
 ```
 
+#### Dry run: Preview without downloading
+
+With `--dry-run`, the script connects to the Flickr API and lists what would be downloaded — without downloading any files or creating any directories.
+
+```bash
+# List all albums with photo/video counts
+./flickr-docker.sh download your_flickr_username --dry-run
+
+# Also list individual photos per album
+./flickr-docker.sh download your_flickr_username --dry-run --verbose
+
+# Single album: list photos
+./flickr-docker.sh album 72157622764287329 --dry-run
+```
+
+> **Note:** In `download --dry-run` mode, only album-level counts are shown by default (few API calls). Adding `--verbose` (or `-v`) lists every photo/video per album. In `album --dry-run` mode, individual photos are always listed.
+
 Photos are saved in `./flickr-backup/`, along with JSON metadata.
 
 > **Metadata:** Flickr metadata (date, title, tags) is **automatically** embedded into the image files during download. A separate metadata script is no longer required.
@@ -188,19 +205,43 @@ docker run --rm \
   download_then_upload your_flickr_username
 ```
 
+The `download_then_upload` entrypoint also supports `--dry-run` and `--verbose`:
+
+```bash
+docker run --rm \
+  -e DATA_DIR=/home/poduser/flickr-backup \
+  -e IMMICH_API_KEY=your_api_key \
+  -e IMMICH_INSTANCE_URL=https://immich.example.com \
+  -v ./flickr-config:/root \
+  -v ./flickr-backup:/root/flickr-backup \
+  xomoxcc/flickr-download:latest \
+  --dry-run --verbose download_then_upload your_flickr_username
+```
+
+In dry-run mode, both the download dry-run and the upload dry-run are executed (list albums/photos, list files without uploading).
+
 ### 9. Command Reference
 
 | Command | Description |
 |---|---|
 | `auth` | Start OAuth authentication |
 | `download <user>` | Download all albums of a user |
+| `download <user> --dry-run` | List albums and photo/video counts (without downloading) |
 | `album <id>` | Download a single album |
+| `album <id> --dry-run` | List photos in an album (without downloading) |
 | `list <user>` | List albums of a user |
 | `shell` | Interactive shell inside the container |
 | `test-browser [url]` | Test X11/browser connection |
 | `info` | Show system information |
 | `clean` | Remove image and temp files |
 | `help` | Show help |
+
+**Options:**
+
+| Option | Description |
+|---|---|
+| `--dry-run` | Preview: list albums/photos via API without downloading |
+| `--verbose`, `-v` | In dry-run mode, list individual photos per album |
 
 ### 10. Directory Structure
 
