@@ -7,15 +7,17 @@ import sys
 import flickr_api
 import yaml
 from flickr_api.auth import AuthHandler
+from loguru import logger
 
 
 def main() -> None:
+    """List all albums for a Flickr user with photo and video counts."""
     from flickrtoimmich import startup
 
     startup()
 
     if len(sys.argv) < 2:
-        print("Usage: flickr-list-albums.py <flickr-user-url>", file=sys.stderr)
+        logger.error("Usage: flickr-list-albums.py <flickr-user-url>")
         sys.exit(1)
 
     config_path = os.path.join(os.environ.get("HOME", os.path.expanduser("~")), ".flickr_download")
@@ -32,7 +34,7 @@ def main() -> None:
     for ps in user.getPhotosets():
         photos = getattr(ps, "photos", "?")
         videos = getattr(ps, "videos", "?")
-        print(f"{ps.id} - {ps.title} ({photos} photos, {videos} videos)")
+        logger.info(f"{ps.id} - {ps.title} ({photos} photos, {videos} videos)")
 
 
 if __name__ == "__main__":

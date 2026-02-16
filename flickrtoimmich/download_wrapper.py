@@ -7,6 +7,12 @@ _orig = _u.set_file_time
 
 
 def _safe(fname: str, taken_str: str) -> None:
+    """Set file modification time, skipping invalid or unknown date strings.
+
+    Args:
+        fname: Path to the file whose modification time should be updated.
+        taken_str: Date-taken string from Flickr metadata (e.g. ``"2024-01-15 12:30:00"``).
+    """
     if not taken_str or taken_str.startswith("0000"):
         return
     _orig(fname, taken_str)

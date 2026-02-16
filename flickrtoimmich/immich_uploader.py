@@ -10,14 +10,31 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import IO
 
+from loguru import logger
+
 
 def stream_pipe(pipe: IO[str], target: IO[str]) -> None:
+    """Stream lines from a subprocess pipe to a target file object.
+
+    Args:
+        pipe: Readable pipe from a subprocess (stdout or stderr).
+        target: Writable file object to forward lines to.
+    """
     for line in pipe:
         target.write(line)
     pipe.close()
 
 
 def upload_batch(files: list[Path], album: str) -> bool:
+    """Upload a batch of files to Immich via the CLI, streaming output in real time.
+
+    Args:
+        files: List of file paths to upload.
+        album: Name of the Immich album to upload into.
+
+    Returns:
+        True if the upload process exited successfully, False otherwise.
+    """
     cmd = ["immich", "upload", *[str(f) for f in files], "--album", album]
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
@@ -30,11 +47,19 @@ def upload_batch(files: list[Path], album: str) -> bool:
 
     rc = proc.wait()
     if rc != 0:
-        print(f"ERROR: immich upload exited with code {rc}", file=sys.stderr)
+        logger.error(f"immich upload exited with code {rc}")
     return rc == 0
 
 
 def _fmt_size(size: int) -> str:
+    """Format a byte count into a human-readable size string.
+
+    Args:
+        size: Size in bytes.
+
+    Returns:
+        Formatted string such as ``"1.5 MB"`` or ``"320 B"``.
+    """
     for unit in ("B", "KB", "MB", "GB"):
         if size < 1024:
             return f"{size:.1f} {unit}" if unit != "B" else f"{size} B"
@@ -44,6 +69,11 @@ def _fmt_size(size: int) -> str:
 
 
 def parse_args() -> argparse.Namespace:
+    """Parse command-line arguments for the Immich uploader.
+
+    Returns:
+        Parsed namespace with ``batch_size``, ``extensions``, and ``dry_run`` attributes.
+    """
     parser = argparse.ArgumentParser(description="Upload photos/videos to Immich in batches")
     parser.add_argument("--batch-size", type=int, default=20, help="number of files per upload batch (default: 20)")
     parser.add_argument(
@@ -57,9 +87,16 @@ def parse_args() -> argparse.Namespace:
 
 
 def main(batch_size: int, extensions: set[str], dry_run: bool = False) -> None:
+    """Discover albums in the data directory and upload their files to Immich in batches.
+
+    Args:
+        batch_size: Maximum number of files per upload batch.
+        extensions: Set of file extensions to include (e.g. ``{".jpg", ".png"}``).
+        dry_run: If True, list files without uploading.
+    """
     data_dir = Path(os.environ.get("DATA_DIR", "."))
 
-    print("START")
+    logger.info("START")
 
     # Collect all albums and files first for total counts
     albums: list[tuple[str, list[Path]]] = []
@@ -83,18 +120,18 @@ def main(batch_size: int, extensions: set[str], dry_run: bool = False) -> None:
         album_size = sum(f.stat().st_size for f in files) if dry_run else 0
         if dry_run:
             total_size += album_size
-            print(
+            logger.info(
                 f"{prefix}Album {album_nr}/{num_albums} '{album}':"
                 f" {len(files)} file(s), {_fmt_size(album_size)}, {num_batches} batch(es)"
             )
         else:
-            print(f"Album {album_nr}/{num_albums} '{album}': {len(files)} file(s), {num_batches} batch(es)")
+            logger.info(f"Album {album_nr}/{num_albums} '{album}': {len(files)} file(s), {num_batches} batch(es)")
 
         for batch_idx in range(0, len(files), batch_size):
             batch = files[batch_idx : batch_idx + batch_size]
             batch_nr = batch_idx // batch_size + 1
             global_batch_nr += 1
-            print(
+            logger.info(
                 f"{prefix}  Batch {batch_nr}/{num_batches} [{global_batch_nr}/{total_batches}] ({len(batch)} file(s))"
             )
 
@@ -103,25 +140,24 @@ def main(batch_size: int, extensions: set[str], dry_run: bool = False) -> None:
                 if dry_run:
                     stat = f.stat()
                     mtime = datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
-                    print(
+                    logger.debug(
                         f"{prefix}    [{file_nr}/{total_files}] batch:{idx_in_batch}/{len(batch)}"
                         f"  {f}  ({_fmt_size(stat.st_size)}, {mtime})"
                     )
                 else:
-                    print(f"    [{file_nr}/{total_files}] batch:{idx_in_batch}/{len(batch)}  {f}")
+                    logger.debug(f"    [{file_nr}/{total_files}] batch:{idx_in_batch}/{len(batch)}  {f}")
 
             if not dry_run:
                 upload_batch(batch, album)
 
     if dry_run:
-        print()
-        print(f"{prefix}Total: {len(albums)} album(s), {total_files} file(s), {_fmt_size(total_size)}")
+        logger.info(f"{prefix}Total: {len(albums)} album(s), {total_files} file(s), {_fmt_size(total_size)}")
 
-    print()
-    print("DONE")
+    logger.info("DONE")
 
 
 def cli() -> None:
+    """Entry point for the ``immich-uploader`` console script."""
     from flickrtoimmich import startup
 
     startup()

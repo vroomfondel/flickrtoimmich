@@ -23,6 +23,11 @@ class InterceptHandler(logging.Handler):
     """Route stdlib logging records to loguru."""
 
     def emit(self, record: logging.LogRecord) -> None:
+        """Forward a stdlib log record to loguru with correct caller depth.
+
+        Args:
+            record: The stdlib logging record to forward.
+        """
         # Map stdlib level to loguru level name
         try:
             level: str | int = glogger.level(record.levelname).name
