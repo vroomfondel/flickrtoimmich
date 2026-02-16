@@ -8,6 +8,22 @@ mkdir -p "$HOME/.mozilla" 2>/dev/null || true
 
 echo BUILDTIME: $BUILDTIME
 
+# Parse --dry-run flag
+DRY_RUN=false
+args=()
+for arg in "$@"; do
+    if [ "$arg" = "--dry-run" ]; then
+        DRY_RUN=true
+    else
+        args+=("$arg")
+    fi
+done
+set -- "${args[@]}"
+
+if [ "$DRY_RUN" = true ]; then
+    echo "[DRY-RUN] Dry-run mode enabled — no commands will be executed."
+fi
+
 if [ "$1" = "shell" ]; then
     shift
     if [ $# -eq 0 ]; then
@@ -22,7 +38,15 @@ elif [ "$1" = "download_then_upload" ]; then
             exit 1
         fi
     done
+
     /usr/local/bin/flickr-docker.sh info
+
+    if [ "$DRY_RUN" = true ]; then
+        echo "[DRY-RUN] /usr/local/bin/flickr-docker.sh download ${*:2}"
+        echo "[DRY-RUN] /usr/local/bin/upload-to-immich.sh"
+        exit 0
+    fi
+
     /usr/local/bin/flickr-docker.sh download "${@:2}"
     rc_download=$?
     echo rc_download: $rc_download
@@ -30,7 +54,24 @@ elif [ "$1" = "download_then_upload" ]; then
     rc_upload=$?
     echo rc_upload: $rc_upload
     exit $(( rc_download > rc_upload ? rc_download : rc_upload ))
+elif [ "$1" = "upload" ]; then
+    for var in DATA_DIR IMMICH_API_KEY IMMICH_INSTANCE_URL; do
+        if [ -z "${!var}" ]; then
+            echo "ERROR: Required environment variable $var is not set" >&2
+            exit 1
+        fi
+    done
+
+    /usr/local/bin/upload-to-immich.sh
+    rc_upload=$?
+    echo rc_upload: $rc_upload
+    exit $rc_upload
 else
+    if [ "$DRY_RUN" = true ]; then
+        echo "[DRY-RUN] /usr/local/bin/flickr-docker.sh info"
+        echo "[DRY-RUN] /usr/local/bin/flickr-docker.sh $*"
+        exit 0
+    fi
     /usr/local/bin/flickr-docker.sh info &&
     exec /usr/local/bin/flickr-docker.sh "$@"
 fi

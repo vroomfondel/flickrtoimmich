@@ -6,6 +6,9 @@ DOCKER_TOKEN="dockerhubtoken"
 
 KUBECTL_CONTEXT="arley@local"
 
+REMOTE_ARM64_CONNECTION=""
+REMOTE_ARM64_SSH_IDENTITY=""
+
 # echo \$0 in include.sh: $0
 
 declare -a include_local_sh
