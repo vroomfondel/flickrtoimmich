@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-import socket, sys
+import socket
+import sys
 
 SOCK_PATH = "/tmp/open-url.sock"
 

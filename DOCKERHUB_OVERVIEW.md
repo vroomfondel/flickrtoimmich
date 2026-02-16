@@ -59,7 +59,9 @@ docker run --rm -it \
 | `build` | Build Docker image locally |
 | `auth` | Authenticate with Flickr (opens browser for OAuth) |
 | `download <user>` | Download all albums for a Flickr user |
+| `download <user> --dry-run` | List albums and photo/video counts without downloading |
 | `album <id>` | Download a single album by ID |
+| `album <id> --dry-run` | List photos in an album without downloading |
 | `list <user>` | List albums with photo/video counts |
 | `shell` | Open interactive shell in the container |
 | `test-browser [url]` | Test X11/browser connectivity (Linux only) |
@@ -94,6 +96,29 @@ The modes are mutually exclusive.
 | `BACKOFF_BASE` | `60` | Base wait in seconds; multiplied by consecutive 429 count |
 | `BACKOFF_MAX` | `600` | Cap on the wait time |
 | `BACKOFF_EXIT_ON_429` | `false` | Exit immediately (code 42) instead of sleeping; useful for CI / Kubernetes Jobs |
+
+## Dry-run mode
+
+`--dry-run` connects to the Flickr API and lists what would be downloaded without actually downloading any files or creating any directories.
+
+```bash
+# List all albums with photo/video counts
+docker run --rm -it \
+  -v "$(pwd)/flickr-config:/root" \
+  xomoxcc/flickr-download:latest download <user> --dry-run
+
+# Also list individual photos per album
+docker run --rm -it \
+  -v "$(pwd)/flickr-config:/root" \
+  xomoxcc/flickr-download:latest download <user> --dry-run --verbose
+
+# List photos in a single album
+docker run --rm -it \
+  -v "$(pwd)/flickr-config:/root" \
+  xomoxcc/flickr-download:latest album <id> --dry-run
+```
+
+Adding `--verbose` (or `-v`) to `download --dry-run` lists every photo/video per album. `album --dry-run` always lists individual photos. The `download_then_upload` entrypoint also supports `--dry-run`.
 
 ## Immich upload
 

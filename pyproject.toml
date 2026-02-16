@@ -92,3 +92,4 @@ ignore_missing_imports = true
 flickr-list-albums = "flickrtoimmich.list_albums:main"
 flickr-download-wrapper = "flickrtoimmich.download_wrapper:main"
 immich-uploader = "flickrtoimmich.immich_uploader:cli"
+flickr-download-dry-run = "flickrtoimmich.download_dry_run:main"

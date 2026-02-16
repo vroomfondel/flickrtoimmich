@@ -47,7 +47,9 @@ API credentials are stored in `flickr-config/.flickr_download`, the OAuth token 
 | `build` | Build the container image |
 | `auth` | Authenticate via OAuth (opens browser) |
 | `download <user>` | Download all albums for a Flickr user |
+| `download <user> --dry-run` | List albums and photo/video counts without downloading |
 | `album <id>` | Download a single album by ID |
+| `album <id> --dry-run` | List photos in an album without downloading |
 | `list <user>` | List albums for a Flickr user |
 | `shell` | Open an interactive shell inside the container |
 | `test-browser [url]` | Test X11 forwarding by opening a browser |
@@ -127,6 +129,25 @@ Example output when a rate limit is hit:
 ```
 
 This applies to `download` and `album` commands in both in-container and host modes. Interactive commands (`auth`, `shell`, `list`) are not wrapped.
+
+## Dry-run mode
+
+`--dry-run` connects to the Flickr API and lists what would be downloaded without actually downloading any files or creating any directories.
+
+```bash
+# List all albums with photo/video counts
+./flickr-docker.sh download <user> --dry-run
+
+# Also list individual photos per album
+./flickr-docker.sh download <user> --dry-run --verbose
+
+# List photos in a single album
+./flickr-docker.sh album <id> --dry-run
+```
+
+In `download --dry-run` mode, only album-level counts are shown by default (few API calls). Adding `--verbose` (or `-v`) lists every photo/video per album. In `album --dry-run` mode, individual photos are always listed since only one album is involved.
+
+The `download_then_upload` entrypoint also supports `--dry-run`: it runs the download dry-run followed by the Immich upload dry-run (which lists files without uploading).
 
 ## Kubernetes deployment
 

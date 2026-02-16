@@ -8,12 +8,15 @@ mkdir -p "$HOME/.mozilla" 2>/dev/null || true
 
 echo BUILDTIME: $BUILDTIME
 
-# Parse --dry-run flag
+# Parse --dry-run and --verbose flags
 DRY_RUN=false
+DRY_RUN_VERBOSE=false
 args=()
 for arg in "$@"; do
     if [ "$arg" = "--dry-run" ]; then
         DRY_RUN=true
+    elif [ "$arg" = "--verbose" ] || [ "$arg" = "-v" ]; then
+        DRY_RUN_VERBOSE=true
     else
         args+=("$arg")
     fi
@@ -26,7 +29,7 @@ fi
 
 if [ "$1" = "--help" ] || [ "$1" = "-h" ] || [ $# -eq 0 ]; then
     cat <<'EOF'
-Usage: entrypoint.sh [--dry-run] <command> [args...]
+Usage: entrypoint.sh [--dry-run] [--verbose] <command> [args...]
 
 Commands:
   shell [cmd...]                  Open an interactive shell (or run cmd)
@@ -36,7 +39,8 @@ Commands:
                                   (e.g. auth, download <user>, album <id>, list <user>)
 
 Options:
-  --dry-run    Show what would be done without executing downloads or uploads
+  --dry-run          List albums/photos via API without downloading or uploading
+  --verbose, -v      In dry-run mode, list individual photos per album
 
 Required environment variables (for upload/download_then_upload):
   DATA_DIR              Path to the data directory
@@ -64,7 +68,8 @@ elif [ "$1" = "download_then_upload" ]; then
     /usr/local/bin/flickr-docker.sh info
 
     if [ "$DRY_RUN" = true ]; then
-        echo "[DRY-RUN] /usr/local/bin/flickr-docker.sh download ${*:2}"
+        /usr/local/bin/flickr-docker.sh download "${@:2}" --dry-run \
+            $([ "$DRY_RUN_VERBOSE" = true ] && echo "--verbose")
         /usr/local/bin/upload-to-immich.sh --dry-run
         rc_upload=$?
         echo rc_upload: $rc_upload
@@ -95,11 +100,8 @@ elif [ "$1" = "upload" ]; then
     echo rc_upload: $rc_upload
     exit $rc_upload
 else
-    if [ "$DRY_RUN" = true ]; then
-        /usr/local/bin/flickr-docker.sh info
-        echo "[DRY-RUN] /usr/local/bin/flickr-docker.sh $*"
-        exit 0
-    fi
     /usr/local/bin/flickr-docker.sh info &&
-    exec /usr/local/bin/flickr-docker.sh "$@"
+    exec /usr/local/bin/flickr-docker.sh "$@" \
+        $([ "$DRY_RUN" = true ] && echo "--dry-run") \
+        $([ "$DRY_RUN_VERBOSE" = true ] && echo "--verbose")
 fi

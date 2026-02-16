@@ -753,7 +753,7 @@ cmd_download() {
 
     if [ -z "$USERNAME" ]; then
         log_error "Username missing!"
-        echo "Usage: $0 download <flickr-username>"
+        echo "Usage: $0 download <flickr-username> [--dry-run] [--verbose]"
         exit 1
     fi
 
@@ -770,6 +770,18 @@ cmd_download() {
     # Convert username to URL
     local FLICKR_USER
     FLICKR_USER=$(flickr_user_to_url "$USERNAME")
+
+    # Dry-run: list albums/photos without downloading
+    if [ "$DRY_RUN" = true ]; then
+        local verbose_flag=""
+        [ "$DRY_RUN_VERBOSE" = true ] && verbose_flag="--verbose"
+        if [ "$IN_CONTAINER" = true ]; then
+            env HOME="$CONFIG_DIR" flickr-download-dry-run user "$FLICKR_USER" $verbose_flag
+        else
+            run_container download "$USERNAME" --dry-run $([ "$DRY_RUN_VERBOSE" = true ] && echo "--verbose")
+        fi
+        return
+    fi
 
     log_info "Starting download for: $FLICKR_USER"
     log_info "Target directory: $WORK_DIR"
@@ -796,10 +808,20 @@ cmd_download_album() {
 
     if [ -z "$ALBUM_ID" ]; then
         log_error "Album ID missing!"
-        echo "Usage: $0 album <album-id>"
+        echo "Usage: $0 album <album-id> [--dry-run]"
         echo ""
         echo "Find album IDs with: $0 list <username>"
         exit 1
+    fi
+
+    # Dry-run: list photos in album without downloading
+    if [ "$DRY_RUN" = true ]; then
+        if [ "$IN_CONTAINER" = true ]; then
+            env HOME="$CONFIG_DIR" flickr-download-dry-run album "$ALBUM_ID"
+        else
+            run_container album "$ALBUM_ID" --dry-run
+        fi
+        return
     fi
 
     log_info "Starting download for album: $ALBUM_ID"
@@ -1274,6 +1296,11 @@ AVAILABLE COMMANDS:
   info                      Show paths and tool versions
   help                      Show this help
 
+OPTIONS:
+
+  --dry-run                 List albums/photos via API without downloading
+  --verbose, -v             In dry-run mode, list individual photos per album
+
 NOT AVAILABLE IN CONTAINER (run on the host):
 
   build                     (flickr_download is already installed)
@@ -1285,7 +1312,10 @@ EXAMPLES:
 
   $0 list my_flickr_name
   $0 download my_flickr_name
+  $0 download my_flickr_name --dry-run
+  $0 download my_flickr_name --dry-run --verbose
   $0 album 72157622764287329
+  $0 album 72157622764287329 --dry-run
 
 HELP_CONTAINER_END
         return 0
@@ -1323,6 +1353,13 @@ COMMANDS:
 
   clean                     Remove Docker image and temp files
 
+OPTIONS:
+
+  --dry-run                 List albums/photos via API without downloading
+                            (applies to download and album commands)
+  --verbose, -v             In dry-run mode, list individual photos per album
+                            (applies to download --dry-run)
+
 EXAMPLES:
 
   # Test X11 connection
@@ -1336,9 +1373,14 @@ EXAMPLES:
   # Download all photos
   ./flickr-docker.sh download my_flickr_name
 
+  # Dry-run: list what would be downloaded
+  ./flickr-docker.sh download my_flickr_name --dry-run
+  ./flickr-docker.sh download my_flickr_name --dry-run --verbose
+
   # Specific album only
   ./flickr-docker.sh list my_flickr_name
   ./flickr-docker.sh album 72157622764287329
+  ./flickr-docker.sh album 72157622764287329 --dry-run
 
 DIRECTORIES:
 
@@ -1455,5 +1497,20 @@ main() {
             ;;
     esac
 }
+
+# Parse --dry-run and --verbose flags, remove them from positional args
+DRY_RUN=false
+DRY_RUN_VERBOSE=false
+filtered_args=()
+for arg in "$@"; do
+    if [ "$arg" = "--dry-run" ]; then
+        DRY_RUN=true
+    elif [ "$arg" = "--verbose" ] || [ "$arg" = "-v" ]; then
+        DRY_RUN_VERBOSE=true
+    else
+        filtered_args+=("$arg")
+    fi
+done
+set -- "${filtered_args[@]}"
 
 main "$@"
