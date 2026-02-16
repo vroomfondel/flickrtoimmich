@@ -43,8 +43,10 @@ elif [ "$1" = "download_then_upload" ]; then
 
     if [ "$DRY_RUN" = true ]; then
         echo "[DRY-RUN] /usr/local/bin/flickr-docker.sh download ${*:2}"
-        echo "[DRY-RUN] /usr/local/bin/upload-to-immich.sh"
-        exit 0
+        /usr/local/bin/upload-to-immich.sh --dry-run
+        rc_upload=$?
+        echo rc_upload: $rc_upload
+        exit $rc_upload
     fi
 
     /usr/local/bin/flickr-docker.sh download "${@:2}"
@@ -62,7 +64,11 @@ elif [ "$1" = "upload" ]; then
         fi
     done
 
-    /usr/local/bin/upload-to-immich.sh
+    if [ "$DRY_RUN" = true ]; then
+        /usr/local/bin/upload-to-immich.sh --dry-run
+    else
+        /usr/local/bin/upload-to-immich.sh
+    fi
     rc_upload=$?
     echo rc_upload: $rc_upload
     exit $rc_upload

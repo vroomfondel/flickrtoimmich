@@ -42,10 +42,6 @@ dependencies = [
     'flickr_api',
 ]
 
-[project.scripts]
-flickr-list-albums = "flickrtoimmich.list_albums:main"
-flickr-download-wrapper = "flickrtoimmich.download_wrapper:main"
-immich-uploader = "flickrtoimmich.immich_uploader:cli"
 
 [project.urls]
 Homepage = "https://github.com/vroomfondel/flickrtoimmich"
@@ -58,6 +54,10 @@ path = "flickrtoimmich/__init__.py"
 [tool.isort]
 profile = "black"
 line_length = 120
+
+[tool.black]
+line-length = 120
+target-version = ["py313"]
 
 [tool.pytest.ini_options]
 python_files = "tests/*.py"
@@ -86,3 +86,8 @@ exclude = '''(?x)(
 module = ["flickr_download.*", "flickr_api.*"]
 ignore_missing_imports = true
 
+
+[project.scripts]
+flickr-list-albums = "flickrtoimmich.list_albums:main"
+flickr-download-wrapper = "flickrtoimmich.download_wrapper:main"
+immich-uploader = "flickrtoimmich.immich_uploader:cli"

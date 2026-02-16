@@ -16,15 +16,16 @@ repos:
         # pre-commit's default_language_version, see
         # https://pre-commit.com/#top_level-default_language_version
         language_version: python3.14
-        args: [--diff, --check, "-l 120"]
+        args: [--diff, --check]
 
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.19.1
+  - repo: local
     hooks:
       - id: mypy
+        name: mypy
+        entry: mypy .
+        language: system
         pass_filenames: false
-        args: ["."]
-        additional_dependencies: [types-pytz, types-PyYAML, types-requests, types-cachetools]
+        types: [python]
 
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.30.0

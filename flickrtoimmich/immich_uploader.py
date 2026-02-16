@@ -42,10 +42,11 @@ def parse_args() -> argparse.Namespace:
         default=[".jpg", ".jpeg", ".png", ".mp4"],
         help="file extensions to include (default: .jpg .jpeg .png .mp4)",
     )
+    parser.add_argument("--dry-run", action="store_true", help="list files that would be uploaded without uploading")
     return parser.parse_args()
 
 
-def main(batch_size: int, extensions: set[str]) -> None:
+def main(batch_size: int, extensions: set[str], dry_run: bool = False) -> None:
     data_dir = Path(os.environ.get("DATA_DIR", "."))
 
     print("START")
@@ -58,10 +59,15 @@ def main(batch_size: int, extensions: set[str]) -> None:
         if not files:
             continue
 
-        print(f"Album '{album}': {len(files)} file(s)")
-        for i in range(0, len(files), batch_size):
-            batch = files[i : i + batch_size]
-            upload_batch(batch, album)
+        if dry_run:
+            print(f"[DRY-RUN] Album '{album}': {len(files)} file(s)")
+            for f in files:
+                print(f"[DRY-RUN]   {f}")
+        else:
+            print(f"Album '{album}': {len(files)} file(s)")
+            for i in range(0, len(files), batch_size):
+                batch = files[i : i + batch_size]
+                upload_batch(batch, album)
 
     print()
     print("DONE")
@@ -69,7 +75,7 @@ def main(batch_size: int, extensions: set[str]) -> None:
 
 def cli() -> None:
     args = parse_args()
-    main(batch_size=args.batch_size, extensions=set(args.extensions))
+    main(batch_size=args.batch_size, extensions=set(args.extensions), dry_run=args.dry_run)
 
 
 if __name__ == "__main__":

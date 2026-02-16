@@ -598,7 +598,8 @@ run_direct() {
     check_config
     log_info "Running flickr_download directly (in-container mode)..."
     echo ""
-    run_with_backoff env HOME="$CONFIG_DIR" flickr-download-wrapper.py "$@"
+    # flickr-download-wrapper installed by pip install with pyproject.toml
+    run_with_backoff env HOME="$CONFIG_DIR" flickr-download-wrapper "$@"
 }
 
 run_with_backoff() {
@@ -837,9 +838,13 @@ cmd_list() {
     # in the photosets.getList response but flickr_download ignores them.
     # Using flickr_api directly avoids patching the installed package.
     if [ "$IN_CONTAINER" = true ]; then
-        env HOME="$CONFIG_DIR" flickr-list-albums.py "$FLICKR_USER"
+        # env HOME="$CONFIG_DIR" flickr-list-albums.py "$FLICKR_USER"
+        # installed by pip with pyproject.toml
+        env HOME="$CONFIG_DIR" flickr-list-albums "$FLICKR_USER"
     else
-        run_container shell -c "flickr-list-albums.py '$FLICKR_USER'"
+        #run_container shell -c "flickr-list-albums.py '$FLICKR_USER'"
+        # installed by pip with pyproject.toml
+        run_container shell -c "flickr-list-albums '$FLICKR_USER'"
     fi
 }
 
