@@ -24,6 +24,28 @@ if [ "$DRY_RUN" = true ]; then
     echo "[DRY-RUN] Dry-run mode enabled — no commands will be executed."
 fi
 
+if [ "$1" = "--help" ] || [ "$1" = "-h" ] || [ $# -eq 0 ]; then
+    cat <<'EOF'
+Usage: entrypoint.sh [--dry-run] <command> [args...]
+
+Commands:
+  shell [cmd...]                  Open an interactive shell (or run cmd)
+  download_then_upload <user>     Download all albums, then upload to Immich
+  upload                          Upload existing downloads to Immich
+  <flickr-docker.sh args...>      Pass through to flickr-docker.sh
+                                  (e.g. auth, download <user>, album <id>, list <user>)
+
+Options:
+  --dry-run    Show what would be done without executing downloads or uploads
+
+Required environment variables (for upload/download_then_upload):
+  DATA_DIR              Path to the data directory
+  IMMICH_API_KEY        Immich API key
+  IMMICH_INSTANCE_URL   Immich instance URL
+EOF
+    exit 0
+fi
+
 if [ "$1" = "shell" ]; then
     shift
     if [ $# -eq 0 ]; then

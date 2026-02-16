@@ -10,6 +10,10 @@ from flickr_api.auth import AuthHandler
 
 
 def main() -> None:
+    from flickrtoimmich import startup
+
+    startup()
+
     if len(sys.argv) < 2:
         print("Usage: flickr-list-albums.py <flickr-user-url>", file=sys.stderr)
         sys.exit(1)
