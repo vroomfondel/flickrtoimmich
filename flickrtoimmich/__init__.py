@@ -2,8 +2,10 @@
 
 __version__ = "0.1.1"
 
+import logging
 import os
 import sys
+from types import FrameType
 from typing import Any, Callable, Dict
 
 from loguru import logger as glogger
@@ -17,6 +19,26 @@ def _loguru_skiplog_filter(record: dict) -> bool:  # type: ignore[type-arg]
     return not record.get("extra", {}).get("skiplog", False)
 
 
+class InterceptHandler(logging.Handler):
+    """Route stdlib logging records to loguru."""
+
+    def emit(self, record: logging.LogRecord) -> None:
+        # Map stdlib level to loguru level name
+        try:
+            level: str | int = glogger.level(record.levelname).name
+        except ValueError:
+            level = record.levelno
+
+        # Find caller from where the logged message originated
+        frame_or_none: FrameType | None = logging.currentframe()
+        depth: int = 2
+        while frame_or_none is not None and frame_or_none.f_code.co_filename == logging.__file__:
+            frame_or_none = frame_or_none.f_back
+            depth += 1
+
+        glogger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
+
+
 def configure_logging(
     loguru_filter: Callable[[Dict[str, Any]], bool] = _loguru_skiplog_filter,
 ) -> None:
@@ -28,6 +50,7 @@ def configure_logging(
     )
     glogger.add(sys.stderr, level=os.getenv("LOGURU_LEVEL"), format=logger_fmt, filter=loguru_filter)  # type: ignore[arg-type]
     glogger.configure(extra={"classname": "None", "skiplog": False})
+    logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
 
 
 def _print_banner() -> None:

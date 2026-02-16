@@ -71,23 +71,32 @@ def main(batch_size: int, extensions: set[str], dry_run: bool = False) -> None:
             albums.append((album_dir.name, files))
 
     total_files = sum(len(files) for _, files in albums)
+    total_batches = sum((len(files) + batch_size - 1) // batch_size for _, files in albums)
     total_size = 0
     prefix = "[DRY-RUN] " if dry_run else ""
     file_nr = 0
+    global_batch_nr = 0
+    num_albums = len(albums)
 
-    for album, files in albums:
+    for album_nr, (album, files) in enumerate(albums, 1):
         num_batches = (len(files) + batch_size - 1) // batch_size
         album_size = sum(f.stat().st_size for f in files) if dry_run else 0
         if dry_run:
             total_size += album_size
-            print(f"{prefix}Album '{album}': {len(files)} file(s), {_fmt_size(album_size)}, {num_batches} batch(es)")
+            print(
+                f"{prefix}Album {album_nr}/{num_albums} '{album}':"
+                f" {len(files)} file(s), {_fmt_size(album_size)}, {num_batches} batch(es)"
+            )
         else:
-            print(f"Album '{album}': {len(files)} file(s), {num_batches} batch(es)")
+            print(f"Album {album_nr}/{num_albums} '{album}': {len(files)} file(s), {num_batches} batch(es)")
 
         for batch_idx in range(0, len(files), batch_size):
             batch = files[batch_idx : batch_idx + batch_size]
             batch_nr = batch_idx // batch_size + 1
-            print(f"{prefix}  Batch {batch_nr}/{num_batches} ({len(batch)} file(s))")
+            global_batch_nr += 1
+            print(
+                f"{prefix}  Batch {batch_nr}/{num_batches} [{global_batch_nr}/{total_batches}] ({len(batch)} file(s))"
+            )
 
             for idx_in_batch, f in enumerate(batch, 1):
                 file_nr += 1
