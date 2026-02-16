@@ -96,7 +96,7 @@ elif [ "$1" = "upload" ]; then
     exit $rc_upload
 else
     if [ "$DRY_RUN" = true ]; then
-        echo "[DRY-RUN] /usr/local/bin/flickr-docker.sh info"
+        /usr/local/bin/flickr-docker.sh info
         echo "[DRY-RUN] /usr/local/bin/flickr-docker.sh $*"
         exit 0
     fi
