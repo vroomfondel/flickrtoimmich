@@ -451,7 +451,7 @@ is_token_valid() {
     # File must have at least 2 non-empty lines (key + secret)
     local line_count
     line_count=$(grep -c '[^[:space:]]' "$token_file" 2>/dev/null || echo "0")
-    echo line_count: $line_count
+    # echo line_count: $line_count
     if [ $line_count -ge 2 ] ; then
       echo "$line_count is greater_equal 2"
       return 1
