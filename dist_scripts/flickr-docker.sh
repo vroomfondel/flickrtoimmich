@@ -437,14 +437,21 @@ is_token_valid() {
     local token_file="$1"
 
     # File must exist
-    [ -f "$token_file" ] || return 1
+    if ! [ -f "$token_file" ] ; then
+      echo "does not exist: $token_file"
+      return 1
+    fi
 
     # File must have content
-    [ -s "$token_file" ] || return 1
+    if ! [ -s "$token_file" ] ; then
+      echo "empty file: $token_file"
+      return 1
+    fi
 
     # File must have at least 2 non-empty lines (key + secret)
     local line_count
     line_count=$(grep -c '[^[:space:]]' "$token_file" 2>/dev/null || echo "0")
+    echo line_count: $line_count
     [ "$line_count" -ge 2 ] || return 1
 
     return 0
@@ -757,8 +764,9 @@ cmd_download() {
         exit 1
     fi
 
-    if ! is_token_valid "$CONFIG_DIR/.flickr_token"; then
-        log_warn "Not yet authenticated (no valid token)!"
+    TF="$CONFIG_DIR/.flickr_token"
+    if ! is_token_valid ${TF}; then
+        log_warn "Not yet authenticated (no valid token file found ${TF})"
         if [ "$IN_CONTAINER" = true ]; then
             echo "Run on the host: ./flickr-docker.sh auth"
         else

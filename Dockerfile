@@ -61,6 +61,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     iputils-ping \
     bind9-dnsutils \
     npm \
+    vim \
     ca-certificates \
     git \
     # Clean up
