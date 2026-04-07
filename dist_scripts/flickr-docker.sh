@@ -452,7 +452,10 @@ is_token_valid() {
     local line_count
     line_count=$(grep -c '[^[:space:]]' "$token_file" 2>/dev/null || echo "0")
     echo line_count: $line_count
-    [ "$line_count" -ge 2 ] || return 1
+    if [ $line_count -ge 2 ] ; then
+      echo "$line_count is greater_equal 2"
+      return 1
+    fi
 
     return 0
 }
